@@ -14,6 +14,8 @@ public:
     static constexpr uint8_t DISPLAY1 = 0x3C;
     static constexpr uint8_t DISPLAY2 = 0x3D;
 
+    static constexpr uint8_t resetPinDisplay2 = 4;
+    static constexpr uint8_t resetPinDisplay1 = 3;
 
     static const uint8_t CURRENT_CHARGE_ICON = 0;
     static const uint8_t MAX_CHARGE_ICON = 1;

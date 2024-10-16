@@ -79,7 +79,7 @@ void Display::setPage(Page *page) {
 
 void Display::refresh() {
 	Wire.begin(); // Not sure why this is necessary exacly, but it works, and measured execution of this linie takes less than 1 microsecond. Compared to 1000 - 20000 microseconds total.
-  currentPage->display(lcd.get());
+    currentPage->display(lcd.get());
 }
 
 

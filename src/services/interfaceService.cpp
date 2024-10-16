@@ -7,11 +7,11 @@ const uint8_t sclPin = 19;
 const long displayInterval = 100;
 
 InterfaceService::InterfaceService(ChargingService *chargingService) : displays(), pages() {
-    addPage(EmptyPage::ID, std::make_unique<EmptyPage>());
-    addPage(ChargingInfoPage::ID, std::make_unique<ChargingInfoPage>(chargingService));
+    registerPage(EmptyPage::ID, std::make_unique<EmptyPage>());
+    registerPage(ChargingInfoPage::ID, std::make_unique<ChargingInfoPage>(chargingService));
 
-    addDisplay(Display::DISPLAY2, 4);
-    addDisplay(Display::DISPLAY1, 3);
+    registerDisplay(Display::DISPLAY2, Display::resetPinDisplay2);
+    registerDisplay(Display::DISPLAY1, Display::resetPinDisplay1);
 
     pinMode(sdaPin, INPUT_PULLUP);
     pinMode(sclPin, INPUT_PULLUP);
@@ -20,11 +20,11 @@ InterfaceService::InterfaceService(ChargingService *chargingService) : displays(
 
 }
 
-void InterfaceService::addDisplay(u_int8_t displayId, u_int8_t resetPin) {
+void InterfaceService::registerDisplay(u_int8_t displayId, u_int8_t resetPin) {
   displays[displayId] = std::make_unique<Display>(displayId, resetPin, pages[EmptyPage::ID].get());
 }
 
-void InterfaceService::addPage(u_int8_t pageId, std::unique_ptr<Page> page) {
+void InterfaceService::registerPage(u_int8_t pageId, std::unique_ptr<Page> page) {
   pages[pageId] = std::move(page);
 }
 bool switchScreens = false;
