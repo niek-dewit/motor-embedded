@@ -1,7 +1,7 @@
 
 #include "page.h"
 #include <Arduino.h> 
-#include <display.h>
+#include "../devices/display.h"
 
 ChargingInfoPage::ChargingInfoPage(ChargingService *chargingService) :
   Page(ChargingInfoPage::ID),

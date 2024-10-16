@@ -2,7 +2,7 @@
 #define DISPLAY_H
 
 #include <SSD1803A_I2C.h>
-#include "pages/page.h"
+#include "../pages/page.h"
 #include <memory>
 
 class Display {

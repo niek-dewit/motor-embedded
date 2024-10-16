@@ -36,7 +36,7 @@ float ChargingService::getMinTemp() {
 
 void ChargingService::loop() {
   unsigned long currentMillis = millis();
-  bool checkUpdateChargingInfo = currentMillis /700 % 2;
+  bool checkUpdateChargingInfo = currentMillis /1000 % 2;
   if(updateChargingInfoNeeded != checkUpdateChargingInfo) {
     updateChargingInfoNeeded = checkUpdateChargingInfo;  
     updateChargingInfo();

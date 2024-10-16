@@ -1,7 +1,7 @@
 
 #include "page.h"
 #include <Arduino.h> 
-#include <display.h>
+#include "../devices/display.h"
 
 
 EmptyPage::EmptyPage() : Page(EmptyPage::ID) {}

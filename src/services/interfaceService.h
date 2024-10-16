@@ -4,8 +4,8 @@
 #include "chargingService.h"
 #include <SSD1803A_I2C.h>
 #include <map>
-#include "display.h"
-#include "pages/page.h"
+#include "../devices/display.h"
+#include "../pages/page.h"
 #include <memory>
 
 class InterfaceService {

@@ -4,7 +4,7 @@
 #define PAGE_H
 
 #include <SSD1803A_I2C.h>
-#include "chargingService.h"
+#include "../services/chargingService.h"
 #include <memory>
 
 class Page {
