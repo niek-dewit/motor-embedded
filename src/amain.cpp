@@ -1,6 +1,7 @@
 #include <FlexCAN_T4.h>
 #include <map>
 #include <./services/bms/bmsDataTypes.h>
+#include <./services/controller/controllerDataTypes.h>
 #include <libBuffer.h>
 
 FlexCAN_T4<CAN1, RX_SIZE_256, TX_SIZE_16> Can0;
@@ -8,12 +9,13 @@ std::map<int16_t, int> myMap;
 uint8_t bmsId = 0x45;
 
 void canSniff(const CAN_message_t &msg) {
+  // From: BMS
   if(false) {
     if(msg.id == ((CAN_PACKET_BMS_TEMPS << 8) | bmsId)) {
       int32_t get_index = 0;
 
-      uint8_t sensorPointer = msg.buf[get_index++];
-      uint8_t temperaturesCount = msg.buf[get_index++];
+      u_int8_t sensorPointer = libBufferGet_uint8(msg.buf, &get_index);
+      u_int8_t temperaturesCount = libBufferGet_uint8(msg.buf, &get_index);
 
       for (uint8_t i = 0; i < 3; i++) {
         if(sensorPointer + ((get_index - 2) / 2) < temperaturesCount) {
@@ -27,6 +29,7 @@ void canSniff(const CAN_message_t &msg) {
     }
   }
 
+  // From: BMS
   if(false) {
     if(msg.id == ((CAN_PACKET_BMS_V_TOT << 8) | bmsId)) {
       int32_t get_index = 0;
@@ -60,6 +63,7 @@ void canSniff(const CAN_message_t &msg) {
     }
   }
 
+  // From: BMS
   if(false) {
     if(msg.id == ((CAN_PACKET_BMS_SOC_SOH_TEMP_STAT << 8) | bmsId)) {
       int32_t get_index = 0;
@@ -67,11 +71,10 @@ void canSniff(const CAN_message_t &msg) {
       float cellVoltageLow = libBufferGet_float16(msg.buf, 1e3, &get_index); //mV
       float cellVoltageHigh = libBufferGet_float16(msg.buf, 1e3, &get_index);  //mV
 
-      uint8_t currentSoC = msg.buf[get_index++];
-      uint8_t maxSoC = msg.buf[get_index++];
-      uint8_t tempBatteryHigh = msg.buf[get_index++];
-
-		  u_int8_t state = msg.buf[get_index++];
+      u_int8_t currentSoC = libBufferGet_uint8(msg.buf, &get_index);
+      u_int8_t maxSoC = libBufferGet_uint8(msg.buf, &get_index);
+      u_int8_t tempBatteryHigh = libBufferGet_uint8(msg.buf, &get_index);
+      u_int8_t state = libBufferGet_uint8(msg.buf, &get_index);
 
 			bool chargeDesired = state & 0b00000001;
 			bool balanceActive = state >> 1 & 0b00000001;
@@ -85,6 +88,7 @@ void canSniff(const CAN_message_t &msg) {
     }
   }
 
+  // From: BMS
   if(true) {
     if(msg.id == ((CAN_PACKET_BMS_AH_WH_CHG_TOTAL << 8) | bmsId)) {
       // cannot find firmware implementation, probably empty and not needed
@@ -94,12 +98,13 @@ void canSniff(const CAN_message_t &msg) {
     }
   }
 
+  // From: BMS
   if(false) {
     if(msg.id == ((CAN_PACKET_BMS_V_CELL << 8) | bmsId)) {
       int32_t get_index = 0;
 
-      uint8_t cellPointer = msg.buf[get_index++];
-      uint8_t cellCount = msg.buf[get_index++];
+      u_int8_t cellPointer = libBufferGet_uint8(msg.buf, &get_index);
+      u_int8_t cellCount = libBufferGet_uint8(msg.buf, &get_index);
 
       for (uint8_t i = 0; i < 3; i++) {
         if(cellPointer + ((get_index - 2) / 2) < cellCount) {
@@ -112,17 +117,21 @@ void canSniff(const CAN_message_t &msg) {
 
     }
   }
+
+  // From: BMS
   if(false) {
     if(msg.id == ((CAN_PACKET_PONG << 8) | bmsId)) {
       int32_t get_index = 0;
 
-      uint8_t canId = msg.buf[get_index++];
-      uint8_t hwType = msg.buf[get_index++];
+      u_int8_t canId = libBufferGet_uint8(msg.buf, &get_index);
+      u_int8_t hwType = libBufferGet_uint8(msg.buf, &get_index);
+
       Serial.println("Pong!");
       Serial.print("CanId: "); Serial.print(canId); Serial.print(" - HwType: "); Serial.println(hwType);
     }
   }
 
+  // From: BMS
   if(false) {
     if(msg.id == ((CAN_PACKET_SET_DUTY << 8) | bmsId)) {
       int32_t get_index = 0;
@@ -151,20 +160,21 @@ void canSniff(const CAN_message_t &msg) {
     }
   }
 
-
+  // From: BMS
   if(false) {
     if(msg.id == ((CAN_PACKET_BMS_BAL << 8) | bmsId)) {
       int32_t get_index = 0;
 
-      uint8_t cellCount = msg.buf[get_index++];
+      u_int8_t cellCount = libBufferGet_uint8(msg.buf, &get_index);
+
       uint64_t bal_state =
-        msg.buf[get_index++] << 48 |
-        msg.buf[get_index++] << 40 |
-        msg.buf[get_index++] << 32 |
-        msg.buf[get_index++] << 24 |
-        msg.buf[get_index++] << 16 |
-        msg.buf[get_index++] << 8 |
-        msg.buf[get_index++] << 0;
+        libBufferGet_uint8(msg.buf, &get_index) << 48 |
+        libBufferGet_uint8(msg.buf, &get_index) << 40 |
+        libBufferGet_uint8(msg.buf, &get_index) << 32 |
+        libBufferGet_uint8(msg.buf, &get_index) << 24 |
+        libBufferGet_uint8(msg.buf, &get_index) << 16 |
+        libBufferGet_uint8(msg.buf, &get_index) << 8 |
+        libBufferGet_uint8(msg.buf, &get_index) << 0;
 
       for (uint8_t cellPointer = 0; cellPointer < cellCount; cellPointer++) {
         bool balancing = (bal_state >> cellPointer) & 0b1;
@@ -179,16 +189,19 @@ void canSniff(const CAN_message_t &msg) {
     }
   }
 
-  if(true) {
+  if(false) {
+    // From: BMS - To: OBC
     if(msg.id == 0x1806E5F4) {
       int32_t get_index = 0;
       float maxChargingVoltage = (float)libBufferGet_uint16(msg.buf, &get_index) / 10.0f;
       float maxChargingCurrent = (float)libBufferGet_uint16(msg.buf, &get_index) / 10.0f;
-      uint8_t controlWorkingState = msg.buf[get_index++];
+
+      uint8_t controlWorkingState = libBufferGet_uint8(msg.buf, &get_index);
       bool startCharging = controlWorkingState & 0b1;
       bool closeCharger = controlWorkingState >> 1 & 0b1;
       bool sleepCharger = controlWorkingState >> 2 & 0b1;
-      uint8_t controlOperatingMode = msg.buf[get_index++];
+      
+      uint8_t controlOperatingMode = libBufferGet_uint8(msg.buf, &get_index);
       bool chargingMode = controlWorkingState & 0b1;
       bool heatingMode = controlWorkingState >> 1 & 0b1;
 
@@ -200,11 +213,14 @@ void canSniff(const CAN_message_t &msg) {
       Serial.print("Charging Mode: "); Serial.print(chargingMode); Serial.print(" ");
       Serial.print("Heating Mode: "); Serial.println(heatingMode);
     }
+
+
+    // From: OBC - To: BMS
     if(msg.id == 0x18FF50E5) {
       int32_t get_index = 0;
       float outputChargingVoltage = (float)libBufferGet_uint16(msg.buf, &get_index) / 10.0f;
       float outputChargingCurrent = (float)libBufferGet_uint16(msg.buf, &get_index) / 10.0f;
-      uint8_t faultState = msg.buf[get_index++];
+      uint8_t faultState = libBufferGet_uint8(msg.buf, &get_index);
       bool hardwareProtection = faultState & 0b1;
       bool temperatureProtection = faultState >> 1 & 0b1;
       uint8_t inputVoltageState = faultState >> 2 & 0b11;
@@ -217,7 +233,7 @@ void canSniff(const CAN_message_t &msg) {
       bool outputOverCurrent = faultState >> 6 & 0b1;
       bool outputShortCircuit = faultState >> 7 & 0b1;
 
-      uint8_t operationStatus = msg.buf[get_index++];
+      uint8_t operationStatus = libBufferGet_uint8(msg.buf, &get_index);
       bool communicationReceiveTimeout = operationStatus & 0b1;
       uint8_t workingState = operationStatus >> 1 & 0b11;
       bool workingStatusUndefined = workingState == 0;
@@ -228,7 +244,7 @@ void canSniff(const CAN_message_t &msg) {
       bool fanOn = operationStatus >> 4 & 0b1;
       bool coolingPumpOn = operationStatus >> 5 & 0b1;
 
-      uint8_t chargingPortStatus = msg.buf[get_index++];
+      uint8_t chargingPortStatus = libBufferGet_uint8(msg.buf, &get_index);
       uint8_t ccSignalState = chargingPortStatus & 0b11;
       bool ccSignalNotConnected = ccSignalState == 0;
       bool ccSignalHalfConnected = ccSignalState == 1;
@@ -243,7 +259,7 @@ void canSniff(const CAN_message_t &msg) {
       bool electronicLockUnlockFault = electronicLockState == 3; //Control unlock actually detected a lock
       bool electronicLockLockedFault = electronicLockState == 4; //Control lock actually detected unlocked
       bool s2SwitchClosed = chargingPortStatus >> 7 & 0b1;
-      int8_t temperature = msg.buf[get_index++] - 40;
+      int16_t temperature = (int16_t)libBufferGet_uint8(msg.buf, &get_index) - 40;
     
       Serial.print("Max Charging Voltage: "); Serial.print(outputChargingVoltage); Serial.print("V ");
       Serial.print("Max Charging Current: "); Serial.print(outputChargingCurrent); Serial.println("A");
@@ -285,6 +301,148 @@ void canSniff(const CAN_message_t &msg) {
       Serial.print("Electronic Lock State - s2 switch closed: "); Serial.print(s2SwitchClosed); Serial.println(" ");
 
 
+    }
+  }
+
+  // From: Controller
+  if(false) {
+    if(msg.id == 0x0CF11E05) {
+      int32_t get_index = 0;
+      u_int16_t rpm = libBufferGet_uint16(msg.buf, &get_index);
+      float current = (float)libBufferGet_uint16(msg.buf, &get_index) / 10.0f;
+      float voltage = (float)libBufferGet_uint16(msg.buf, &get_index) / 10.0f;
+      u_int16_t faultState = libBufferGet_uint16(msg.buf, &get_index);
+
+      bool canControllerFaultIdentification = faultState & 0b1;
+      bool canControllerFaultOverVoltage = faultState >> 1 & 0b1;
+      bool canControllerFaultUnderVoltage = faultState >> 2 & 0b1;
+      bool canControllerFaultStall = faultState >> 4 & 0b1;
+      bool canControllerFaultInternalVolts = faultState >> 5 & 0b1;
+      bool canControllerFaultControllerOverTemperature = faultState >> 6 & 0b1;
+      bool canControllerFaultThrottlePowerUp = faultState >> 7 & 0b1;
+      bool canControllerFaultInternalReset = faultState >> 9 & 0b1;
+      bool canControllerFaultHallThrottleOpenOrShorted = faultState >> 10 & 0b1;
+      bool canControllerFaultAngleSensor = faultState >> 11 & 0b1;
+      bool canControllerFaultMotorOverTemperature = faultState >> 14 & 0b1;
+
+      Serial.print("Speed: "); Serial.print(rpm); Serial.print("RPM - ");
+      Serial.print("Current: "); Serial.print(current); Serial.print("A - ");
+      Serial.print("Voltage: "); Serial.print(voltage); Serial.println("V");
+      Serial.print("Fault State - identification: "); Serial.print(canControllerFaultIdentification); Serial.println(" ");
+      Serial.print("Fault State - over voltage: "); Serial.print(canControllerFaultOverVoltage); Serial.println(" ");
+      Serial.print("Fault State - under voltage: "); Serial.print(canControllerFaultUnderVoltage); Serial.println(" ");
+      Serial.print("Fault State - stall: "); Serial.print(canControllerFaultStall); Serial.println(" ");
+      Serial.print("Fault State - internal volts: "); Serial.print(canControllerFaultInternalVolts); Serial.println(" ");
+      Serial.print("Fault State - controller over temperature: "); Serial.print(canControllerFaultControllerOverTemperature); Serial.println(" ");
+      Serial.print("Fault State - throttle power up: "); Serial.print(canControllerFaultThrottlePowerUp); Serial.println(" ");
+      Serial.print("Fault State - internal reset: "); Serial.print(canControllerFaultInternalReset); Serial.println(" ");
+      Serial.print("Fault State - hall throttle open or shorted: "); Serial.print(canControllerFaultHallThrottleOpenOrShorted); Serial.println(" ");
+      Serial.print("Fault State - angle sensor: "); Serial.print(canControllerFaultAngleSensor); Serial.println(" ");
+      Serial.print("Fault State - motor over temperature: "); Serial.print(canControllerFaultMotorOverTemperature); Serial.println(" ");
+    }
+
+    if(msg.id == 0x0CF11F05) {
+      int32_t get_index = 0;
+      u_int8_t throttleInput = libBufferGet_uint8(msg.buf, &get_index);
+      int16_t controllerTemperature = (int16_t)libBufferGet_uint8(msg.buf, &get_index) - 40;
+      int16_t motorTemperature = (int16_t)libBufferGet_uint8(msg.buf, &get_index) - 30;
+      u_int8_t reserved = libBufferGet_uint8(msg.buf, &get_index);
+      u_int8_t controllerStatus = libBufferGet_uint8(msg.buf, &get_index);
+      u_int8_t feedbackStatus = (controllerStatus >> 2 & 0b11);
+      bool feedbackStationary = feedbackStatus == 0;
+      bool feedbackForward = feedbackStatus == 1;
+      bool feedbackReverse = feedbackStatus == 2;
+      u_int8_t commandStatus = (controllerStatus & 0b11);
+      bool commandNeutral = commandStatus == 0;
+      bool commandForward = commandStatus == 1;
+      bool commandReverse = commandStatus == 2;
+      u_int8_t switchStatus = libBufferGet_uint8(msg.buf, &get_index);
+      bool hallA = switchStatus & 0b1;
+      bool hallB = switchStatus >> 1 & 0b1;
+      bool hallC = switchStatus >> 2 & 0b1;
+      bool brakeSwitch = switchStatus >> 3 & 0b1;
+      bool reverseSwitch = switchStatus >> 4 & 0b1;
+      bool forwardSwitch = switchStatus >> 5 & 0b1;
+      bool footSwitch = switchStatus >> 6 & 0b1;
+      bool boostSwitch = switchStatus >> 7 & 0b1;
+      
+      Serial.print("Throttle Input: "); Serial.print(throttleInput); Serial.println(" - ");
+      Serial.print("Controller Temperature: "); Serial.print(controllerTemperature); Serial.println("°C - ");
+      Serial.print("Motor Temperature: "); Serial.print(motorTemperature); Serial.println("°C - ");
+
+      Serial.print("Feedback Stationary: "); Serial.print(feedbackStationary); Serial.println(" ");
+      Serial.print("Feedback Forward: "); Serial.print(feedbackForward); Serial.println(" ");
+      Serial.print("Feedback Reverse: "); Serial.print(feedbackReverse); Serial.println(" ");
+      Serial.print("Command Neutral: "); Serial.print(commandNeutral); Serial.println(" ");
+      Serial.print("Command Forward: "); Serial.print(commandForward); Serial.println(" ");
+      Serial.print("Command Reverse: "); Serial.print(commandReverse); Serial.println(" ");
+
+      Serial.print("Hall A: "); Serial.print(hallA); Serial.println(" ");
+      Serial.print("Hall B: "); Serial.print(hallB); Serial.println(" ");
+      Serial.print("Hall C: "); Serial.print(hallC); Serial.println(" ");
+      Serial.print("Brake Switch: "); Serial.print(brakeSwitch); Serial.println(" ");
+      Serial.print("Reverse Switch: "); Serial.print(reverseSwitch); Serial.println(" ");
+      Serial.print("Forward Switch: "); Serial.print(forwardSwitch); Serial.println(" ");
+      Serial.print("Foot Switch: "); Serial.print(footSwitch); Serial.println(" ");
+      Serial.print("Boost Switch: "); Serial.print(boostSwitch); Serial.println(" ");
+    }
+  }
+
+  // From: DCDC
+  if(false) {
+    if(msg.id == 0x1801D08F) {
+      int32_t get_index = 0;
+      float voltage = (float)libBufferGet_uint16(msg.buf, &get_index) / 10.0;
+      float current = (float)libBufferGet_uint16(msg.buf, &get_index) / 10.0;
+      u_int16_t status = libBufferGet_uint16(msg.buf, &get_index);
+      bool overTemperature = status & 0b1;
+      bool overTemperatureProtection = status >> 1 & 0b1;
+      bool inputOverVoltage = status >> 2 & 0b1; // Could also be output, docs not clear
+      bool inputUnderVoltage = status >> 3 & 0b1; // Could also be output, docs not clear
+      bool outputOverVoltage = status >> 4 & 0b1; // Could also be input, docs not clear
+      bool outputUnderVoltage = status >> 5 & 0b1; // Could also be input, docs not clear
+      bool outputOverCurrent = status >> 6 & 0b1;
+      bool ready = status >> 8 & 0b1;
+      bool statusWorking = status >> 9 & 0b1;
+      bool hardwareFault = status >> 10 & 0b1;
+      bool canCommunicationFault = status >> 11 & 0b1;
+      bool fanOn = status >> 12 & 0b1;
+      bool shutOffFault = status >> 13 & 0b1;
+      bool waterFanOn = status >> 14 & 0b1;
+      bool hvilFault = status >> 15 & 0b1;
+      u_int8_t reserved = libBufferGet_uint8(msg.buf, &get_index);
+      int16_t temperature = (int16_t)libBufferGet_uint8(msg.buf, &get_index) - 60;
+
+      Serial.print("DCDC Voltage: "); Serial.print(voltage); Serial.println("V");
+      Serial.print("DCDC Current: "); Serial.print(current); Serial.println("A");
+      Serial.print("DCDC Temperature: "); Serial.print(temperature); Serial.println("°C");
+      Serial.print("DCDC Status - over temperature: "); Serial.print(overTemperature); Serial.println(" ");
+      Serial.print("DCDC Status - over temperature protection: "); Serial.print(overTemperatureProtection); Serial.println(" ");
+      Serial.print("DCDC Status - input over voltage: "); Serial.print(inputOverVoltage); Serial.println(" ");
+      Serial.print("DCDC Status - input under voltage: "); Serial.print(inputUnderVoltage); Serial.println(" ");
+      Serial.print("DCDC Status - output over voltage: "); Serial.print(outputOverVoltage); Serial.println(" ");
+      Serial.print("DCDC Status - output under voltage: "); Serial.print(outputUnderVoltage); Serial.println(" ");
+      Serial.print("DCDC Status - output over current: "); Serial.print(outputOverCurrent); Serial.println(" ");
+      Serial.print("DCDC Status - ready: "); Serial.print(ready); Serial.println(" ");
+      Serial.print("DCDC Status - status working: "); Serial.print(statusWorking); Serial.println(" ");
+      Serial.print("DCDC Status - hardware fault: "); Serial.print(hardwareFault); Serial.println(" ");
+      Serial.print("DCDC Status - can communication fault: "); Serial.print(canCommunicationFault); Serial.println(" ");
+      Serial.print("DCDC Status - fan on: "); Serial.print(fanOn); Serial.println(" ");
+      Serial.print("DCDC Status - shut off fault: "); Serial.print(shutOffFault); Serial.println(" ");
+      Serial.print("DCDC Status - water fan on: "); Serial.print(waterFanOn); Serial.println(" ");
+      Serial.print("DCDC Status - hvil fault: "); Serial.print(hvilFault); Serial.println(" ");
+    
+    }
+    if(msg.id == 0x18008FD0) { // Can we send these commands from MCU? Docs not clear
+      int32_t get_index = 0;
+      u_int8_t status = libBufferGet_uint8(msg.buf, &get_index);
+      bool controlOrderStart = status & 0b1;
+      bool controlOrderStop = status >> 1 & 0b1;
+      bool protectOrder = status >> 2 & 0b1;
+
+      Serial.print("Control Order - start: "); Serial.print(controlOrderStart); Serial.println(" ");
+      Serial.print("Control Order - stop: "); Serial.print(controlOrderStop); Serial.println(" ");
+      Serial.print("Protect Order: "); Serial.print(protectOrder); Serial.println(" ");
     }
   }
 
