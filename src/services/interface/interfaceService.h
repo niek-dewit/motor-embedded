@@ -1,16 +1,16 @@
 #ifndef INTERFACESERVICE_H
 #define INTERFACESERVICE_H
 
-#include "chargingService.h"
+#include "../obc/obcService.h"
 #include <SSD1803A_I2C.h>
 #include <map>
-#include "../devices/display.h"
-#include "../pages/page.h"
+#include "../../devices/display.h"
+#include "../../pages/page.h"
 #include <memory>
 
 class InterfaceService {
 public:
-    InterfaceService(ChargingService *chargingService);  
+    InterfaceService(ObcService *ObcService);  
     static const u_int8_t PAGE_CHARGING_INFO = 0;
     static const u_int8_t PAGE_DISCHARGING_INFO = 1;
 

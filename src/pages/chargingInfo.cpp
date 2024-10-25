@@ -3,9 +3,9 @@
 #include <Arduino.h> 
 #include "../devices/display.h"
 
-ChargingInfoPage::ChargingInfoPage(ChargingService *chargingService) :
+ChargingInfoPage::ChargingInfoPage(ObcService *obcService) :
   Page(ChargingInfoPage::ID),
-  chargingService(chargingService) {}
+  obcService(obcService) {}
 
 void ChargingInfoPage::display(SSD1803A_I2C *lcd) {
   lcd->cls();
@@ -23,29 +23,29 @@ void ChargingInfoPage::display(SSD1803A_I2C *lcd) {
   lcd->locate(1, 0);
   lcd->write(Display::CURRENT_CHARGE_ICON);
   lcd->locate(1, 1);
-  lcd->print(chargingService->getCurrentVoltage(), 1);
+  lcd->print(obcService->getCurrentVoltage(), 1);
   lcd->print('V');
   lcd->locate(1, 9);
   lcd->write(Display::MAX_CHARGE_ICON);
   lcd->locate(1, 10);
-  lcd->print(chargingService->getMaxVoltage(), 1);
+  lcd->print(obcService->getMaxVoltage(), 1);
   lcd->print('V');
 
   lcd->locate(2, 1);
-  lcd->print(chargingService->getCurrentAmperage(), 1);
+  lcd->print(obcService->getCurrentAmperage(), 1);
   lcd->print('A');
   lcd->locate(2, 10);
-  lcd->print(chargingService->getMaxAmperage(), 1);
+  lcd->print(obcService->getMaxAmperage(), 1);
   lcd->print('A');
 
   lcd->locate(3, 0);
   lcd->write(Display::TEMP_LOW_ICON);
   lcd->locate(3, 1);
-  lcd->print(chargingService->getMinTemp(), 1);
+  lcd->print(obcService->getMinTemp(), 1);
   lcd->print('\4');
   lcd->locate(3, 9);
   lcd->write(Display::TEMP_HIGH_ICON);
-  lcd->print(chargingService->getMaxTemp(), 1);
+  lcd->print(obcService->getMaxTemp(), 1);
   lcd->print('\4');
 }
 

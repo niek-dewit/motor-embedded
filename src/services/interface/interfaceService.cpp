@@ -1,4 +1,3 @@
-
 #include "interfaceService.h"
 #include <Arduino.h> 
 
@@ -6,9 +5,9 @@ const uint8_t sdaPin = 18;
 const uint8_t sclPin = 19;
 const long displayInterval = 100;
 
-InterfaceService::InterfaceService(ChargingService *chargingService) : displays(), pages() {
+InterfaceService::InterfaceService(ObcService *ObcService) : displays(), pages() {
     registerPage(EmptyPage::ID, std::make_unique<EmptyPage>());
-    registerPage(ChargingInfoPage::ID, std::make_unique<ChargingInfoPage>(chargingService));
+    registerPage(ChargingInfoPage::ID, std::make_unique<ChargingInfoPage>(ObcService));
 
     registerDisplay(Display::DISPLAY2, Display::resetPinDisplay2);
     registerDisplay(Display::DISPLAY1, Display::resetPinDisplay1);

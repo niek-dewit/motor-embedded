@@ -1,6 +1,7 @@
 
 #ifndef BMS_DATATYPES_H_
 #define BMS_DATATYPES_H_
+
 // CAN commands
 typedef enum {
 	CAN_PACKET_SET_DUTY = 0,

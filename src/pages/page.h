@@ -4,7 +4,7 @@
 #define PAGE_H
 
 #include <SSD1803A_I2C.h>
-#include "../services/chargingService.h"
+#include "../services/obc/obcService.h"
 #include <memory>
 
 class Page {
@@ -29,14 +29,14 @@ private:
 
 class ChargingInfoPage: public Page {
 public:
-    ChargingInfoPage(ChargingService *chargingService);  
+    ChargingInfoPage(ObcService *obcService);  
     void display(SSD1803A_I2C *lcd) override;
     void setData(float currentVoltage, float maxVoltage, float currentAmperage, float maxAmperage, float minTemp, float maxTemp);
 
     static constexpr uint8_t ID = 1;
 
 private:
-    ChargingService *chargingService;
+    ObcService *obcService;
 };
 
 

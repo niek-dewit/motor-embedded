@@ -1,0 +1,5 @@
+Standard: Cpp11
+BasedOnStyle: Google
+IndentWidth: 2
+ContinuationIndentWidth: 2
+ColumnLimit: 0
