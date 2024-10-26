@@ -4,17 +4,10 @@
 #include <libBuffer.h>
 
 ObcService::ObcService() {
-  currentVoltage = 0.0f;
-  maxVoltage = 0.0f;
-  currentAmperage = 0.0f;
-  maxAmperage = 0.0f;
-  minTemp = 0.0f;
-  maxTemp = 0.0f;
-
-  CanBusService::getInstance().registerHandler(ObcService::CAN_SEND_STATUS_MESSAGE_ID, std::make_unique<std::function<void(const CAN_message_t &)>>( [this](const CAN_message_t &msg) { handleStatusMessage(msg); }));
-  CanBusService::getInstance().registerHandler(ObcService::CAN_RECEIVE_COMMAND_MESSAGE_ID, std::make_unique<std::function<void(const CAN_message_t &)>>( [this](const CAN_message_t &msg) { handleCommandMessage(msg); }));
-
+  CanBusService::getInstance().registerHandler(ObcService::CAN_SEND_STATUS_MESSAGE_ID, std::make_unique<std::function<void(const CAN_message_t &)>>([this](const CAN_message_t &msg) { handleStatusMessage(msg); }));
+  CanBusService::getInstance().registerHandler(ObcService::CAN_RECEIVE_COMMAND_MESSAGE_ID, std::make_unique<std::function<void(const CAN_message_t &)>>([this](const CAN_message_t &msg) { handleCommandMessage(msg); }));
 }
+
 void ObcService::handleCommandMessage(const CAN_message_t &msg) {
   // From: BMS - To: OBC
   if (msg.id == ObcService::CAN_RECEIVE_COMMAND_MESSAGE_ID) {
@@ -31,28 +24,20 @@ void ObcService::handleCommandMessage(const CAN_message_t &msg) {
     bool chargingMode = controlOperatingMode & 0b1;
     bool heatingMode = controlOperatingMode >> 1 & 0b1;
 
-    Serial.print("Max Charging Voltage: ");
-    Serial.print(maxChargingVoltage);
-    Serial.print("V ");
-    Serial.print("Max Charging Current: ");
-    Serial.print(maxChargingCurrent);
-    Serial.println("A");
-    Serial.print("Start Charging: ");
-    Serial.print(startCharging);
-    Serial.print(" ");
-    Serial.print("Close Charger: ");
-    Serial.print(closeCharger);
-    Serial.print(" ");
-    Serial.print("Sleep Charger: ");
-    Serial.print(sleepCharger);
-    Serial.print(" ");
-    Serial.print("Charging Mode: ");
-    Serial.print(chargingMode);
-    Serial.print(" ");
-    Serial.print("Heating Mode: ");
-    Serial.println(heatingMode);
+    ObcCommandData *obcCommandData = commandObservable.getData();
+    obcCommandData->commandMaxChargingVoltage = maxChargingVoltage;
+    obcCommandData->commandMaxChargingCurrent = maxChargingCurrent;
+    obcCommandData->commandStartCharging = startCharging;
+    obcCommandData->commandCloseCharger = closeCharger;
+    obcCommandData->commandSleepCharger = sleepCharger;
+    obcCommandData->commandChargingMode = chargingMode;
+    obcCommandData->commandHeatingMode = heatingMode;
+    commandObservable.notifyListeners();
+
   }
 }
+
+
 
 void ObcService::handleStatusMessage(const CAN_message_t &msg) {
   // From: OBC - To: BMS
@@ -101,133 +86,171 @@ void ObcService::handleStatusMessage(const CAN_message_t &msg) {
     bool s2SwitchClosed = chargingPortStatus >> 7 & 0b1;
     int16_t temperature = (int16_t)libBufferGet_uint8(msg.buf, &get_index) - 40;
 
-    Serial.print("Max Charging Voltage: ");
-    Serial.print(outputChargingVoltage);
-    Serial.print("V ");
-    Serial.print("Max Charging Current: ");
-    Serial.print(outputChargingCurrent);
-    Serial.println("A");
-    Serial.print("Temperature: ");
-    Serial.print(temperature);
-    Serial.println("°C ");
+    ObcStatusData *obcStatusData = statusObservable.getData();
+    obcStatusData->outputChargingVoltage = outputChargingVoltage;
+    obcStatusData->outputChargingCurrent = outputChargingCurrent;
+    obcStatusData->hardwareProtection = hardwareProtection;
+    obcStatusData->temperatureProtection = temperatureProtection;
+    obcStatusData->inputVoltageNormal = inputVoltageNormal;
+    obcStatusData->inputUnderVoltage = inputUnderVoltage;
+    obcStatusData->inputOverVoltage = inputOverVoltage;
+    obcStatusData->noInputVoltage = noInputVoltage;
+    obcStatusData->outputUnderVoltage = outputUnderVoltage;
+    obcStatusData->outputOverVoltage = outputOverVoltage;
+    obcStatusData->outputOverCurrent = outputOverCurrent;
+    obcStatusData->outputShortCircuit = outputShortCircuit;
+    obcStatusData->communicationReceiveTimeout = communicationReceiveTimeout;
+    obcStatusData->workingStatusUndefined = workingStatusUndefined;
+    obcStatusData->workingStatusNormal = workingStatusNormal;
+    obcStatusData->workingStatusStop = workingStatusStop;
+    obcStatusData->workingStatusStopStandby = workingStatusStopStandby;
+    obcStatusData->initializationComplete = initializationComplete;
+    obcStatusData->fanOn = fanOn;
+    obcStatusData->coolingPumpOn = coolingPumpOn;
+    obcStatusData->ccSignalNotConnected = ccSignalNotConnected;
+    obcStatusData->ccSignalHalfConnected = ccSignalHalfConnected;
+    obcStatusData->ccSignalNormalConnected = ccSignalNormalConnected;
+    obcStatusData->ccSignalResistanceDetectionError = ccSignalResistanceDetectionError;
+    obcStatusData->cpSignalConnected = cpSignalConnected;
+    obcStatusData->socketOverheating = socketOverheating;
+    obcStatusData->electronicLockPending = electronicLockPending;
+    obcStatusData->electronicLockLocked = electronicLockLocked;
+    obcStatusData->electronicLockUnlocked = electronicLockUnlocked;
+    obcStatusData->electronicLockUnlockFault = electronicLockUnlockFault;
+    obcStatusData->electronicLockLockedFault = electronicLockLockedFault;
+    obcStatusData->s2SwitchClosed = s2SwitchClosed;
+    obcStatusData->temperature = temperature;
+    statusObservable.notifyListeners();
 
-    Serial.print("Fault State - hardware protection: ");
-    Serial.print(hardwareProtection);
-    Serial.println(" ");
-    Serial.print("Fault State - temperature protection: ");
-    Serial.print(temperatureProtection);
-    Serial.println(" ");
-    Serial.print("Fault State - input voltage normal: ");
-    Serial.print(inputVoltageNormal);
-    Serial.println(" ");
-    Serial.print("Fault State - input under voltage: ");
-    Serial.print(inputUnderVoltage);
-    Serial.println(" ");
-    Serial.print("Fault State - input over voltage: ");
-    Serial.print(inputOverVoltage);
-    Serial.println(" ");
-    Serial.print("Fault State - no input voltage: ");
-    Serial.print(noInputVoltage);
-    Serial.println(" ");
-    Serial.print("Fault State - output under voltage: ");
-    Serial.print(outputUnderVoltage);
-    Serial.println(" ");
-    Serial.print("Fault State - output over voltage: ");
-    Serial.print(outputOverVoltage);
-    Serial.println(" ");
-    Serial.print("Fault State - output over current: ");
-    Serial.print(outputOverCurrent);
-    Serial.println(" ");
-    Serial.print("Fault State - output short circuit: ");
-    Serial.print(outputShortCircuit);
-    Serial.println(" ");
-
-    Serial.print("Operation Status - communication receive timeout: ");
-    Serial.print(communicationReceiveTimeout);
-    Serial.println(" ");
-    Serial.print("Operation Status - working state undefined: ");
-    Serial.print(workingStatusUndefined);
-    Serial.println(" ");
-    Serial.print("Operation Status - working state normal: ");
-    Serial.print(workingStatusNormal);
-    Serial.println(" ");
-    Serial.print("Operation Status - working state stop: ");
-    Serial.print(workingStatusStop);
-    Serial.println(" ");
-    Serial.print("Operation Status - working state stop standby: ");
-    Serial.print(workingStatusStopStandby);
-    Serial.println(" ");
-    Serial.print("Operation Status - initialization complete: ");
-    Serial.print(initializationComplete);
-    Serial.println(" ");
-    Serial.print("Operation Status - fan on: ");
-    Serial.print(fanOn);
-    Serial.println(" ");
-    Serial.print("Operation Status - cooling pump on: ");
-    Serial.print(coolingPumpOn);
-    Serial.println(" ");
-
-    /** Not sure yet if OBC has CC/CP and Electronic lock support */
-    Serial.print("Charging Port Status - cc signal not connected: ");
-    Serial.print(ccSignalNotConnected);
-    Serial.println(" ");
-    Serial.print("Charging Port Status - cc signal half connected: ");
-    Serial.print(ccSignalHalfConnected);
-    Serial.println(" ");
-    Serial.print("Charging Port Status - cc signal normal connected: ");
-    Serial.print(ccSignalNormalConnected);
-    Serial.println(" ");
-    Serial.print("Charging Port Status - cc signal resistance detection error: ");
-    Serial.print(ccSignalResistanceDetectionError);
-    Serial.println(" ");
-    Serial.print("Charging Port Status - cp signal connected: ");
-    Serial.print(cpSignalConnected);
-    Serial.println(" ");
-    Serial.print("Charging Port Status - socket overheating: ");
-    Serial.print(socketOverheating);
-    Serial.println(" ");
-
-    Serial.print("Electronic Lock State - electronic lock pending: ");
-    Serial.print(electronicLockPending);
-    Serial.println(" ");
-    Serial.print("Electronic Lock State - electronic lock locked: ");
-    Serial.print(electronicLockLocked);
-    Serial.println(" ");
-    Serial.print("Electronic Lock State - electronic lock unlocked: ");
-    Serial.print(electronicLockUnlocked);
-    Serial.println(" ");
-    Serial.print("Electronic Lock State - electronic lock unlock fault: ");
-    Serial.print(electronicLockUnlockFault);
-    Serial.println(" ");
-    Serial.print("Electronic Lock State - electronic lock locked fault: ");
-    Serial.print(electronicLockLockedFault);
-    Serial.println(" ");
-    Serial.print("Electronic Lock State - s2 switch closed: ");
-    Serial.print(s2SwitchClosed);
-    Serial.println(" ");
   }
 }
 
-float ObcService::getCurrentAmperage() {
-  return currentAmperage;
-}
+void ObcService::printData() {
+  ObcCommandData *obcCommandData = commandObservable.getData();
+  Serial.print("Max Charging Voltage: ");
+  Serial.print(obcCommandData->commandMaxChargingVoltage);
+  Serial.print("V ");
+  Serial.print("Max Charging Current: ");
+  Serial.print(obcCommandData->commandMaxChargingCurrent);
+  Serial.println("A");
+  Serial.print("Start Charging: ");
+  Serial.print(obcCommandData->commandStartCharging);
+  Serial.print(" ");
+  Serial.print("Close Charger: ");
+  Serial.print(obcCommandData->commandCloseCharger);
+  Serial.print(" ");
+  Serial.print("Sleep Charger: ");
+  Serial.print(obcCommandData->commandSleepCharger);
+  Serial.print(" ");
+  Serial.print("Charging Mode: ");
+  Serial.print(obcCommandData->commandChargingMode);
+  Serial.print(" ");
+  Serial.print("Heating Mode: ");
+  Serial.println(obcCommandData->commandHeatingMode);
 
-float ObcService::getCurrentVoltage() {
-  return currentVoltage;
-}
+  ObcStatusData *obcStatusData = statusObservable.getData();
+  Serial.print("Max Charging Voltage: ");
+  Serial.print(obcStatusData->outputChargingVoltage);
+  Serial.print("V ");
+  Serial.print("Max Charging Current: ");
+  Serial.print(obcStatusData->outputChargingCurrent);
+  Serial.println("A");
+  Serial.print("Temperature: ");
+  Serial.print(obcStatusData->temperature);
+  Serial.println("°C ");
 
-float ObcService::getMaxAmperage() {
-  return maxAmperage;
-}
+  Serial.print("Fault State - hardware protection: ");
+  Serial.print(obcStatusData->hardwareProtection);
+  Serial.println(" ");
+  Serial.print("Fault State - temperature protection: ");
+  Serial.print(obcStatusData->temperatureProtection);
+  Serial.println(" ");
+  Serial.print("Fault State - input voltage normal: ");
+  Serial.print(obcStatusData->inputVoltageNormal);
+  Serial.println(" ");
+  Serial.print("Fault State - input under voltage: ");
+  Serial.print(obcStatusData->inputUnderVoltage);
+  Serial.println(" ");
+  Serial.print("Fault State - input over voltage: ");
+  Serial.print(obcStatusData->inputOverVoltage);
+  Serial.println(" ");
+  Serial.print("Fault State - no input voltage: ");
+  Serial.print(obcStatusData->noInputVoltage);
+  Serial.println(" ");
+  Serial.print("Fault State - output under voltage: ");
+  Serial.print(obcStatusData->outputUnderVoltage);
+  Serial.println(" ");
+  Serial.print("Fault State - output over voltage: ");
+  Serial.print(obcStatusData->outputOverVoltage);
+  Serial.println(" ");
+  Serial.print("Fault State - output over current: ");
+  Serial.print(obcStatusData->outputOverCurrent);
+  Serial.println(" ");
+  Serial.print("Fault State - output short circuit: ");
+  Serial.print(obcStatusData->outputShortCircuit);
+  Serial.println(" ");
 
-float ObcService::getMaxVoltage() {
-  return maxVoltage;
-}
+  Serial.print("Operation Status - communication receive timeout: ");
+  Serial.print(obcStatusData->communicationReceiveTimeout);
+  Serial.println(" ");
+  Serial.print("Operation Status - working state undefined: ");
+  Serial.print(obcStatusData->workingStatusUndefined);
+  Serial.println(" ");
+  Serial.print("Operation Status - working state normal: ");
+  Serial.print(obcStatusData->workingStatusNormal);
+  Serial.println(" ");
+  Serial.print("Operation Status - working state stop: ");
+  Serial.print(obcStatusData->workingStatusStop);
+  Serial.println(" ");
+  Serial.print("Operation Status - working state stop standby: ");
+  Serial.print(obcStatusData->workingStatusStopStandby);
+  Serial.println(" ");
+  Serial.print("Operation Status - initialization complete: ");
+  Serial.print(obcStatusData->initializationComplete);
+  Serial.println(" ");
+  Serial.print("Operation Status - fan on: ");
+  Serial.print(obcStatusData->fanOn);
+  Serial.println(" ");
+  Serial.print("Operation Status - cooling pump on: ");
+  Serial.print(obcStatusData->coolingPumpOn);
+  Serial.println(" ");
 
-float ObcService::getMaxTemp() {
-  return maxTemp;
-}
+  /** Not sure yet if OBC has CC/CP and Electronic lock support */
+  Serial.print("Charging Port Status - cc signal not connected: ");
+  Serial.print(obcStatusData->ccSignalNotConnected);
+  Serial.println(" ");
+  Serial.print("Charging Port Status - cc signal half connected: ");
+  Serial.print(obcStatusData->ccSignalHalfConnected);
+  Serial.println(" ");
+  Serial.print("Charging Port Status - cc signal normal connected: ");
+  Serial.print(obcStatusData->ccSignalNormalConnected);
+  Serial.println(" ");
+  Serial.print("Charging Port Status - cc signal resistance detection error: ");
+  Serial.print(obcStatusData->ccSignalResistanceDetectionError);
+  Serial.println(" ");
+  Serial.print("Charging Port Status - cp signal connected: ");
+  Serial.print(obcStatusData->cpSignalConnected);
+  Serial.println(" ");
+  Serial.print("Charging Port Status - socket overheating: ");
+  Serial.print(obcStatusData->socketOverheating);
+  Serial.println(" ");
 
-float ObcService::getMinTemp() {
-  return minTemp;
+  Serial.print("Electronic Lock State - electronic lock pending: ");
+  Serial.print(obcStatusData->electronicLockPending);
+  Serial.println(" ");
+  Serial.print("Electronic Lock State - electronic lock locked: ");
+  Serial.print(obcStatusData->electronicLockLocked);
+  Serial.println(" ");
+  Serial.print("Electronic Lock State - electronic lock unlocked: ");
+  Serial.print(obcStatusData->electronicLockUnlocked);
+  Serial.println(" ");
+  Serial.print("Electronic Lock State - electronic lock unlock fault: ");
+  Serial.print(obcStatusData->electronicLockUnlockFault);
+  Serial.println(" ");
+  Serial.print("Electronic Lock State - electronic lock locked fault: ");
+  Serial.print(obcStatusData->electronicLockLockedFault);
+  Serial.println(" ");
+  Serial.print("Electronic Lock State - s2 switch closed: ");
+  Serial.print(obcStatusData->s2SwitchClosed);
+  Serial.println(" ");
 }

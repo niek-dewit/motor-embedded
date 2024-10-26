@@ -22,8 +22,8 @@ private:
     void canReceived(const CAN_message_t &msg);
     void unknownReceived(const CAN_message_t &msg);
 
-    std::map<uint32_t, std::unique_ptr<std::function<void(const CAN_message_t &)>>> handlers;
-    std::map<uint32_t, uint32_t> unknownMessagesMap;
+    std::map<u_int32_t, std::unique_ptr<std::function<void(const CAN_message_t &)>>> handlers;
+    std::map<u_int32_t, uint32_t> unknownMessagesMap;
 };
 
 #endif

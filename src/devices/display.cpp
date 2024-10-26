@@ -55,9 +55,8 @@ uint8_t celsius[8] = {
     0b00000,
     0b00000};
 
-Display::Display(uint8_t i2caddr, uint8_t resetPin, Page *initialPage) {
+Display::Display(uint8_t i2caddr, uint8_t resetPin, std::unique_ptr<std::function<void(u_int64_t)>> requestRenderCallback): requestRenderCallback(std::move(requestRenderCallback)) {
     lcd = std::make_unique<SSD1803A_I2C>(i2caddr, resetPin);
-    setPage(initialPage);
 
     lcd->begin(DOGS164);
 
@@ -68,18 +67,13 @@ Display::Display(uint8_t i2caddr, uint8_t resetPin, Page *initialPage) {
     lcd->create(CELSIUS_ICON, celsius);
     lcd->display(CONTRAST, contrast);
 
-    refresh();
-
 }
 
-void Display::setPage(Page *page) {
-    currentPage = page;
+void Display::prepare() {
+    Wire.begin(); // Not sure why this is necessary exacly, but it works, and measured execution of this line takes less than 1 microsecond. Compared to 1000 - 20000 microseconds total.
 }
 
-
-void Display::refresh() {
-	Wire.begin(); // Not sure why this is necessary exacly, but it works, and measured execution of this linie takes less than 1 microsecond. Compared to 1000 - 20000 microseconds total.
-    currentPage->display(lcd.get());
+void Display::requestRender(u_int64_t scheduledAfterMillis) {
+    requestRenderCallback->operator()(scheduledAfterMillis);
 }
-
 

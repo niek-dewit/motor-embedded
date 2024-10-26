@@ -2,14 +2,13 @@
 #define DISPLAY_H
 
 #include <SSD1803A_I2C.h>
-#include "../pages/page.h"
 #include <memory>
 
 class Display {
 public:
-    Display(uint8_t i2caddr, u_int8_t resetPin, Page *initialPage);  
-    void setPage(Page *page);
-    void refresh();
+    Display(uint8_t i2caddr, u_int8_t resetPin, std::unique_ptr<std::function<void(u_int64_t)>> requestRenderCallback); 
+    void prepare();
+    void requestRender(u_int64_t scheduledAfterMillis);
 
     static constexpr uint8_t DISPLAY1 = 0x3C;
     static constexpr uint8_t DISPLAY2 = 0x3D;
@@ -23,9 +22,9 @@ public:
     static const uint8_t TEMP_HIGH_ICON = 3;
     static const uint8_t CELSIUS_ICON = 4;
 
-    Page *currentPage;
-private:
     std::unique_ptr<SSD1803A_I2C> lcd;
+private:
+    std::unique_ptr<std::function<void(u_int64_t)>> requestRenderCallback;
 };
 
 #endif 

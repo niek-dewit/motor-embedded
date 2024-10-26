@@ -4,15 +4,28 @@
 #include "../devices/display.h"
 
 
-EmptyPage::EmptyPage() : Page(EmptyPage::ID) {}
+EmptyPage::EmptyPage(Display *display) : Page(EmptyPage::ID, display) {
+  Serial.println("EmptyPage created");
+  display->requestRender(1000);
+}
 
-void EmptyPage::display(SSD1803A_I2C *lcd) {
-  lcd->cls();
-  lcd->display(LINES_3_2);
+EmptyPage::~EmptyPage() {
+  Serial.println("EmptyPage destroyed");
+}
 
-  lcd->locate(1, 0);
-  lcd->print("de Wit  Software");
+void EmptyPage::render(uint64_t m) {
+  Page::render(m);
 
+  display->prepare();
+  display->lcd->cls();
+  display->lcd->display(LINES_3_2);
+
+  display->lcd->locate(1, 0);
+  display->lcd->print("de Wit  Software");
+  display->lcd->locate(2, 0);
+  display->lcd->print(millis(), DEC);
+
+  display->requestRender(1000);
 }
 
 

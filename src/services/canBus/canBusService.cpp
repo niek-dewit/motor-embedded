@@ -35,6 +35,7 @@ void CanBusService::canReceived(const CAN_message_t &msg) {
 }
 
 void CanBusService::unknownReceived(const CAN_message_t &msg) {
+  
   Serial.print("No handler for ID: ");
   Serial.println(msg.id, HEX);
   Serial.print("MB ");
@@ -53,8 +54,6 @@ void CanBusService::unknownReceived(const CAN_message_t &msg) {
   Serial.print(msg.flags.extended);
   Serial.print(" TS: ");
   Serial.print(msg.timestamp);
-  Serial.print(" ID: ");
-  Serial.print(msg.id, HEX);
   Serial.print(" BUS: ");
   Serial.print(msg.bus);
   Serial.print(" Buffer: ");
@@ -79,6 +78,7 @@ void CanBusService::unknownReceived(const CAN_message_t &msg) {
     Serial.print(" Count: ");
     Serial.println(pair.second);
   }
+  
 }
 
 void CanBusService::loop() {
