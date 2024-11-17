@@ -55,7 +55,11 @@ uint8_t celsius[8] = {
     0b00000,
     0b00000};
 
-Display::Display(uint8_t i2caddr, uint8_t resetPin, std::unique_ptr<std::function<void(u_int64_t)>> requestRenderCallback): requestRenderCallback(std::move(requestRenderCallback)) {
+Display::Display(uint8_t i2caddr, uint8_t resetPin, std::unique_ptr<std::function<void(u_int64_t)>> requestRenderCallback): requestRenderCallback(std::move(requestRenderCallback)), i2caddr(i2caddr), resetPin(resetPin) {
+    init();
+}
+
+void Display::init() {
     lcd = std::make_unique<SSD1803A_I2C>(i2caddr, resetPin);
 
     lcd->begin(DOGS164);
@@ -66,7 +70,8 @@ Display::Display(uint8_t i2caddr, uint8_t resetPin, std::unique_ptr<std::functio
     lcd->create(TEMP_LOW_ICON, tempLow);
     lcd->create(CELSIUS_ICON, celsius);
     lcd->display(CONTRAST, contrast);
-
+    
+    this->requestRender(0);
 }
 
 void Display::prepare() {

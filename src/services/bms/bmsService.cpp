@@ -6,22 +6,22 @@
 #include "../bms/bmsDataTypes.h"
 
 BmsService::BmsService() {
-  CanBusService::getInstance().registerHandler(BmsService::BMS_TEMPS_MESSAGE_ID, std::make_unique<std::function<void(const CAN_message_t &)>>([this](const CAN_message_t &msg) { handleBmsTempsMessage(msg); }));
-  CanBusService::getInstance().registerHandler(BmsService::BMS_V_TOT_MESSAGE_ID, std::make_unique<std::function<void(const CAN_message_t &)>>([this](const CAN_message_t &msg) { handleBmsVtotMessage(msg); }));
-  CanBusService::getInstance().registerHandler(BmsService::BMS_I_MESSAGE_ID, std::make_unique<std::function<void(const CAN_message_t &)>>([this](const CAN_message_t &msg) { handleBmsIMessage(msg); }));
-  CanBusService::getInstance().registerHandler(BmsService::BMS_AH_WH_MESSAGE_ID, std::make_unique<std::function<void(const CAN_message_t &)>>([this](const CAN_message_t &msg) { handleBmsAhWhMessage(msg); }));
-  CanBusService::getInstance().registerHandler(BmsService::BMS_HUM_MESSAGE_ID, std::make_unique<std::function<void(const CAN_message_t &)>>([this](const CAN_message_t &msg) { handleBmsHumMessage(msg); }));
+  CanBusService::getInstance().registerHandler(BmsService::BMS_TEMPS_MESSAGE_ID,             std::make_unique<std::function<void(const CAN_message_t &)>>([this](const CAN_message_t &msg) { handleBmsTempsMessage(msg); }));
+  CanBusService::getInstance().registerHandler(BmsService::BMS_V_TOT_MESSAGE_ID,             std::make_unique<std::function<void(const CAN_message_t &)>>([this](const CAN_message_t &msg) { handleBmsVtotMessage(msg); }));
+  CanBusService::getInstance().registerHandler(BmsService::BMS_I_MESSAGE_ID,                 std::make_unique<std::function<void(const CAN_message_t &)>>([this](const CAN_message_t &msg) { handleBmsIMessage(msg); }));
+  CanBusService::getInstance().registerHandler(BmsService::BMS_AH_WH_MESSAGE_ID,             std::make_unique<std::function<void(const CAN_message_t &)>>([this](const CAN_message_t &msg) { handleBmsAhWhMessage(msg); }));
+  CanBusService::getInstance().registerHandler(BmsService::BMS_HUM_MESSAGE_ID,               std::make_unique<std::function<void(const CAN_message_t &)>>([this](const CAN_message_t &msg) { handleBmsHumMessage(msg); }));
   CanBusService::getInstance().registerHandler(BmsService::BMS_SOC_SOH_TEMP_STAT_MESSAGE_ID, std::make_unique<std::function<void(const CAN_message_t &)>>([this](const CAN_message_t &msg) { handleBmsSocSohTempStatMessage(msg); }));
-  CanBusService::getInstance().registerHandler(BmsService::BMS_AH_WH_CHG_TOTAL_MESSAGE_ID, std::make_unique<std::function<void(const CAN_message_t &)>>([this](const CAN_message_t &msg) { handleBmsAhWhChgTotalMessage(msg); }));
-  CanBusService::getInstance().registerHandler(BmsService::BMS_AH_WH_DIS_TOTAL_MESSAGE_ID, std::make_unique<std::function<void(const CAN_message_t &)>>([this](const CAN_message_t &msg) { handleBmsAhWhDisTotalMessage(msg); }));
-  CanBusService::getInstance().registerHandler(BmsService::BMS_V_CELL_MESSAGE_ID, std::make_unique<std::function<void(const CAN_message_t &)>>([this](const CAN_message_t &msg) { handleBmsVCellMessage(msg); }));
-  CanBusService::getInstance().registerHandler(BmsService::PONG_MESSAGE_ID, std::make_unique<std::function<void(const CAN_message_t &)>>([this](const CAN_message_t &msg) { handlePongMessage(msg); }));
-  CanBusService::getInstance().registerHandler(BmsService::SET_DUTY_MESSAGE_ID, std::make_unique<std::function<void(const CAN_message_t &)>>([this](const CAN_message_t &msg) { handleSetDutyMessage(msg); }));
-  CanBusService::getInstance().registerHandler(BmsService::SET_CURRENT_MESSAGE_ID, std::make_unique<std::function<void(const CAN_message_t &)>>([this](const CAN_message_t &msg) { handleSetCurrentMessage(msg); }));
-  CanBusService::getInstance().registerHandler(BmsService::SET_CURRENT_BRAKE_MESSAGE_ID, std::make_unique<std::function<void(const CAN_message_t &)>>([this](const CAN_message_t &msg) { handleSetCurrentBrakeMessage(msg); }));
-  CanBusService::getInstance().registerHandler(BmsService::SET_RPM_MESSAGE_ID, std::make_unique<std::function<void(const CAN_message_t &)>>([this](const CAN_message_t &msg) { handleSetRpmMessage(msg); }));
-  CanBusService::getInstance().registerHandler(BmsService::SET_POS_MESSAGE_ID, std::make_unique<std::function<void(const CAN_message_t &)>>([this](const CAN_message_t &msg) { handleSetPosMessage(msg); }));
-  CanBusService::getInstance().registerHandler(BmsService::BMS_BAL_MESSAGE_ID, std::make_unique<std::function<void(const CAN_message_t &)>>([this](const CAN_message_t &msg) { handleBmsBalMessage(msg); }));
+  CanBusService::getInstance().registerHandler(BmsService::BMS_AH_WH_CHG_TOTAL_MESSAGE_ID,   std::make_unique<std::function<void(const CAN_message_t &)>>([this](const CAN_message_t &msg) { handleBmsAhWhChgTotalMessage(msg); }));
+  CanBusService::getInstance().registerHandler(BmsService::BMS_AH_WH_DIS_TOTAL_MESSAGE_ID,   std::make_unique<std::function<void(const CAN_message_t &)>>([this](const CAN_message_t &msg) { handleBmsAhWhDisTotalMessage(msg); }));
+  CanBusService::getInstance().registerHandler(BmsService::BMS_V_CELL_MESSAGE_ID,            std::make_unique<std::function<void(const CAN_message_t &)>>([this](const CAN_message_t &msg) { handleBmsVCellMessage(msg); }));
+  CanBusService::getInstance().registerHandler(BmsService::PONG_MESSAGE_ID,                  std::make_unique<std::function<void(const CAN_message_t &)>>([this](const CAN_message_t &msg) { handlePongMessage(msg); }));
+  CanBusService::getInstance().registerHandler(BmsService::SET_DUTY_MESSAGE_ID,              std::make_unique<std::function<void(const CAN_message_t &)>>([this](const CAN_message_t &msg) { handleSetDutyMessage(msg); }));
+  CanBusService::getInstance().registerHandler(BmsService::SET_CURRENT_MESSAGE_ID,           std::make_unique<std::function<void(const CAN_message_t &)>>([this](const CAN_message_t &msg) { handleSetCurrentMessage(msg); }));
+  CanBusService::getInstance().registerHandler(BmsService::SET_CURRENT_BRAKE_MESSAGE_ID,     std::make_unique<std::function<void(const CAN_message_t &)>>([this](const CAN_message_t &msg) { handleSetCurrentBrakeMessage(msg); }));
+  CanBusService::getInstance().registerHandler(BmsService::SET_RPM_MESSAGE_ID,               std::make_unique<std::function<void(const CAN_message_t &)>>([this](const CAN_message_t &msg) { handleSetRpmMessage(msg); }));
+  CanBusService::getInstance().registerHandler(BmsService::SET_POS_MESSAGE_ID,               std::make_unique<std::function<void(const CAN_message_t &)>>([this](const CAN_message_t &msg) { handleSetPosMessage(msg); }));
+  CanBusService::getInstance().registerHandler(BmsService::BMS_BAL_MESSAGE_ID,               std::make_unique<std::function<void(const CAN_message_t &)>>([this](const CAN_message_t &msg) { handleBmsBalMessage(msg); }));
 }
 
 void BmsService::handleBmsTempsMessage(const CAN_message_t &msg) {

@@ -43,6 +43,9 @@ class DcdcService {
   static const u_int32_t CONTROL_MESSAGE_ID = (u_int32_t)0x18008FD0;
 
   void printData();
+  void sendStartCommand();
+  void sendStopCommand();
+  void sendProtectCommand();
 
   Observable<DcdcComponentStatusData> componentStatusObservable;
   Observable<DcdcControlData> controlObservable;
@@ -52,6 +55,7 @@ class DcdcService {
 
   void handleComponentStatusMessage(const CAN_message_t &msg);
   void handleControlMessage(const CAN_message_t &msg);
+  void sendControl(bool orderStart, bool orderStop, bool orderProtect);
 };
 
 #endif

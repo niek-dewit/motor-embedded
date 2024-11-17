@@ -15,19 +15,31 @@ InterfaceService& interfaceService = InterfaceService::getInstance();
 CanBusService& canBusService = CanBusService::getInstance();
 
 void setup() {
+  pinMode(LED_BUILTIN, OUTPUT);
   Serial.begin(115200);
+  interfaceService.logging = false;
 }
+
 
 int heartBeatInterval = 1000;
 int prevHeartBeat = 0;
-
+bool blinking = false;
 void loop() {
   interfaceService.loop();
   canBusService.loop();
 
   if (millis() - prevHeartBeat > heartBeatInterval) {
-    Serial.print("Heartbeat: "); Serial.println(millis());
+    //Serial.print("Heartbeat: "); Serial.println(millis());
     prevHeartBeat = millis();
+    blinking = !blinking;
+    if (blinking) {
+      digitalWrite(LED_BUILTIN, HIGH);
+    } else {
+      digitalWrite(LED_BUILTIN, LOW);
+    }
+    
   }
+
+
 
 }

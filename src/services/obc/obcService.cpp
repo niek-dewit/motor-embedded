@@ -33,7 +33,7 @@ void ObcService::handleCommandMessage(const CAN_message_t &msg) {
     obcCommandData->commandChargingMode = chargingMode;
     obcCommandData->commandHeatingMode = heatingMode;
     commandObservable.notifyListeners();
-
+    printData();
   }
 }
 
@@ -127,32 +127,32 @@ void ObcService::handleStatusMessage(const CAN_message_t &msg) {
 
 void ObcService::printData() {
   ObcCommandData *obcCommandData = commandObservable.getData();
-  Serial.print("Max Charging Voltage: ");
+  Serial.print("Command - Max Charging Voltage: ");
   Serial.print(obcCommandData->commandMaxChargingVoltage);
   Serial.print("V ");
-  Serial.print("Max Charging Current: ");
+  Serial.print("Command - Max Charging Current: ");
   Serial.print(obcCommandData->commandMaxChargingCurrent);
   Serial.println("A");
-  Serial.print("Start Charging: ");
+  Serial.print("Command - Start Charging: ");
   Serial.print(obcCommandData->commandStartCharging);
   Serial.print(" ");
-  Serial.print("Close Charger: ");
+  Serial.print("Command - Close Charger: ");
   Serial.print(obcCommandData->commandCloseCharger);
   Serial.print(" ");
-  Serial.print("Sleep Charger: ");
+  Serial.print("Command - Sleep Charger: ");
   Serial.print(obcCommandData->commandSleepCharger);
   Serial.print(" ");
-  Serial.print("Charging Mode: ");
+  Serial.print("Command - Charging Mode: ");
   Serial.print(obcCommandData->commandChargingMode);
   Serial.print(" ");
-  Serial.print("Heating Mode: ");
+  Serial.print("Command - Heating Mode: ");
   Serial.println(obcCommandData->commandHeatingMode);
 
   ObcStatusData *obcStatusData = statusObservable.getData();
-  Serial.print("Max Charging Voltage: ");
+  Serial.print("Output Charging Voltage: ");
   Serial.print(obcStatusData->outputChargingVoltage);
   Serial.print("V ");
-  Serial.print("Max Charging Current: ");
+  Serial.print("Output Charging Current: ");
   Serial.print(obcStatusData->outputChargingCurrent);
   Serial.println("A");
   Serial.print("Temperature: ");

@@ -1,7 +1,6 @@
 
-#include "page.h"
+#include "chargingInfo.h"
 #include <Arduino.h> 
-#include "../devices/display.h"
 #include <memory>
 
 ChargingInfoPage::ChargingInfoPage(Display *display) :

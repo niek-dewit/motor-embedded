@@ -13,6 +13,7 @@ public:
     }
     static void callCanReceived(const CAN_message_t &msg);
     void registerHandler(uint32_t id, std::unique_ptr<std::function<void(const CAN_message_t &)>> callback);
+    void sendMessage(const CAN_message_t &msg);
     void loop();
 private:    
     CanBusService(); 

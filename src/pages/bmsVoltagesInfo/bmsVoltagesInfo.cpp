@@ -1,7 +1,6 @@
 
-#include "page.h"
+#include "bmsVoltagesInfo.h"
 #include <Arduino.h> 
-#include "../devices/display.h"
 #include <memory>
 
 BmsVoltagesInfoPage::BmsVoltagesInfoPage(Display *display, uint8_t pageIndex) :
@@ -20,7 +19,6 @@ BmsVoltagesInfoPage::~BmsVoltagesInfoPage() {
 }
 
 void BmsVoltagesInfoPage::bmsDataChanged(BmsVCellData *data) {
-  Serial.println("BmsVoltagesInfoPage::bmsDataChanged");
   bmsVCellData = data;
   display->requestRender(0);
 }

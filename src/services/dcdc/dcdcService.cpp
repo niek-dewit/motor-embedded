@@ -8,8 +8,45 @@ DcdcService::DcdcService() {
   CanBusService::getInstance().registerHandler(DcdcService::CONTROL_MESSAGE_ID, std::make_unique<std::function<void(const CAN_message_t &)>>([this](const CAN_message_t &msg) { handleControlMessage(msg); }));
 }
 
+void DcdcService::sendStartCommand() {
+  sendControl(true, false, false);
+}
+
+void DcdcService::sendStopCommand() {
+  sendControl(false, true, false);
+}
+
+void DcdcService::sendProtectCommand() {
+  sendControl(false, false, true);
+}
+
+void DcdcService::sendControl(bool orderStart, bool orderStop, bool orderProtect) {
+  // Not confirmed to actually work. Docs are a bit unclear.
+  DcdcControlData *data = controlObservable.getData();
+  data->controlOrderStart = orderStart;
+  data->controlOrderStop = orderStop;
+  data->protectOrder = orderProtect;
+
+  u_int8_t controlOrder = 0;
+  if (orderStart) {
+    controlOrder |= 0b1;
+  }
+  if (orderStop) {
+    controlOrder |= 0b10;
+  }
+  if (orderProtect) {
+    controlOrder |= 0b100;
+  }
+
+  CAN_message_t message;
+  message.id = DcdcService::CONTROL_MESSAGE_ID;
+  message.buf[0] = controlOrder;
+  CanBusService::getInstance().sendMessage(message);
+}
+
 void DcdcService::handleControlMessage(const CAN_message_t &msg) {
-  if (msg.id == DcdcService::CONTROL_MESSAGE_ID) {  // Can we send these commands from MCU? Docs not clear
+  // Can we send these commands from MCU? Docs not clear
+  if (msg.id == DcdcService::CONTROL_MESSAGE_ID) {
     int32_t get_index = 0;
     u_int8_t status = libBufferGet_uint8(msg.buf, &get_index);
     bool controlOrderStart = status & 0b1;
@@ -46,7 +83,7 @@ void DcdcService::handleComponentStatusMessage(const CAN_message_t &msg) {
     bool waterFanOn = status >> 14 & 0b1;
     bool hvilFault = status >> 15 & 0b1;
     libBufferGet_uint8(msg.buf, &get_index);  // reserved data
-    int16_t temperature = (int16_t)libBufferGet_uint8(msg.buf, &get_index) - 60;
+    int16_t temperature = (int16_t)libBufferGet_uint8(msg.buf, &get_index) - 40; // Docs say offset of -60, but seems like it should be -40 or -50
 
     DcdcComponentStatusData *dcdcComponentStatusData = componentStatusObservable.getData();
     dcdcComponentStatusData->voltage = voltage;
@@ -68,7 +105,6 @@ void DcdcService::handleComponentStatusMessage(const CAN_message_t &msg) {
     dcdcComponentStatusData->waterFanOn = waterFanOn;
     dcdcComponentStatusData->hvilFault = hvilFault;
     componentStatusObservable.notifyListeners();
-
   }
 }
 

@@ -1,5 +1,12 @@
 #include "interfaceService.h"
 #include <Arduino.h> 
+#include <pages/bmsVoltagesInfo/bmsVoltagesInfo.h>
+#include <pages/bmsTemperaturesInfo/bmsTemperaturesInfo.h>
+#include <pages/empty/empty.h>
+#include <pages/dcdc/dcdcInfo.h>
+#include <pages/obcInstructed/obcInstructedInfo.h>
+#include <pages/obcState/obcStateInfo.h>
+#include <pages/chargingPort/chargingPortInfo.h>
 
 const uint8_t sdaPin = 18;
 const uint8_t sclPin = 19;
@@ -10,8 +17,12 @@ InterfaceService::InterfaceService() : displays(), pages() {
   registerDisplay(Display::DISPLAY1, Display::resetPinDisplay1);
 
   //registerPage(Display::DISPLAY1, std::make_unique<EmptyPage>(displays[Display::DISPLAY1].get()));
-  registerPage(Display::DISPLAY1, std::make_unique<BmsVoltagesInfoPage>(displays[Display::DISPLAY1].get(), 0));
-  registerPage(Display::DISPLAY2, std::make_unique<BmsTemperaturesInfoPage>(displays[Display::DISPLAY2].get()));
+  //registerPage(Display::DISPLAY1, std::make_unique<BmsVoltagesInfoPage>(displays[Display::DISPLAY1].get(), 0));
+  //registerPage(Display::DISPLAY2, std::make_unique<BmsTemperaturesInfoPage>(displays[Display::DISPLAY2].get()));
+  //registerPage(Display::DISPLAY1, std::make_unique<ObcInstructedInfoPage>(displays[Display::DISPLAY1].get()));
+  //registerPage(Display::DISPLAY2, std::make_unique<DcdcInfoPage>(displays[Display::DISPLAY2].get()));
+  registerPage(Display::DISPLAY2, std::make_unique<ObcStateInfoPage>(displays[Display::DISPLAY2].get()));
+  registerPage(Display::DISPLAY1, std::make_unique<ChargingPortInfoPage>(displays[Display::DISPLAY1].get()));
 
   pinMode(sdaPin, INPUT_PULLUP);
   pinMode(sclPin, INPUT_PULLUP);
@@ -61,8 +72,11 @@ void InterfaceService::checkPendingRefreshes(u_int8_t displayId) {
     pendingRefreshes[displayId] = 0;
 
     page->render(currentMillis);
-    Serial.print("Display rendered: ");
-    Serial.println(displayId, HEX);
+    if(logging) {
+      Serial.print("Display rendered: ");
+      Serial.println(displayId, HEX);
+    }
+    
   }
   
 
@@ -76,10 +90,21 @@ void InterfaceService::registerPage(u_int8_t displayId, std::unique_ptr<Page> pa
   pages[displayId] = std::move(page);
 }
 
+void InterfaceService::reinitializeDisplays() {
+  lastDisplayInitializeMillis = millis();
+  for (auto& display : displays) {
+    display.second->init();
+  }
+}
+
 void InterfaceService::loop() {
 
   if(!initialized) {
     return;
+  }
+
+  if(millis() - lastDisplayInitializeMillis > DISPLAY_REINITIALZE_DELAY) {
+    reinitializeDisplays();
   }
 
   for (auto& page : pages) {

@@ -61,9 +61,16 @@ void ControllerService::handleInputStatusMessage(const CAN_message_t &msg) {
 void ControllerService::handleComponentStatusMessage(const CAN_message_t &msg) {
   if (msg.id == ControllerService::COMPONENT_STATUS_MESSAGE_ID) {
     int32_t get_index = 0;
-    u_int16_t rpm = libBufferGet_uint16(msg.buf, &get_index);
-    float current = (float)libBufferGet_uint16(msg.buf, &get_index) / 10.0f;
-    float voltage = (float)libBufferGet_uint16(msg.buf, &get_index) / 10.0f;
+    u_int8_t rpmLSB = libBufferGet_uint8(msg.buf, &get_index);
+    u_int8_t rpmMSB = libBufferGet_uint8(msg.buf, &get_index);
+    u_int16_t rpm = rpmMSB * 256 + rpmLSB;
+    u_int8_t currentLSB = libBufferGet_uint8(msg.buf, &get_index);
+    u_int8_t currentMSB = libBufferGet_uint8(msg.buf, &get_index);
+    float current = (float)(currentMSB * 256 + currentLSB) / 10.0f;
+    u_int8_t voltageLSB = libBufferGet_uint8(msg.buf, &get_index);
+    u_int8_t voltageMSB = libBufferGet_uint8(msg.buf, &get_index);
+    float voltage = (float)(voltageMSB * 256 + voltageLSB) / 10.0f;
+
     u_int16_t faultState = libBufferGet_uint16(msg.buf, &get_index);
 
     bool canControllerFaultIdentification = faultState & 0b1;

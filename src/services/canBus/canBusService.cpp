@@ -34,6 +34,10 @@ void CanBusService::canReceived(const CAN_message_t &msg) {
   }
 }
 
+void CanBusService::sendMessage(const CAN_message_t &msg) {
+  Can0.write(msg);
+}
+
 void CanBusService::unknownReceived(const CAN_message_t &msg) {
   
   Serial.print("No handler for ID: ");

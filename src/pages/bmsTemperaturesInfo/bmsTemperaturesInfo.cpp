@@ -1,7 +1,6 @@
 
-#include "page.h"
+#include "bmsTemperaturesInfo.h"
 #include <Arduino.h> 
-#include "../devices/display.h"
 #include <memory>
 
 BmsTemperaturesInfoPage::BmsTemperaturesInfoPage(Display *display) :
@@ -19,7 +18,6 @@ BmsTemperaturesInfoPage::~BmsTemperaturesInfoPage() {
 }
 
 void BmsTemperaturesInfoPage::bmsDataChanged(BmsTempsData *data) {
-  Serial.println("BmsTemperaturesInfoPage::bmsDataChanged");
   bmsTempsData = data;
   display->requestRender(0);
 }
