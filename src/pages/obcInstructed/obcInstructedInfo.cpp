@@ -5,19 +5,24 @@
 #include <vector>
 #include <string>
 
-ObcInstructedInfoPage::ObcInstructedInfoPage(Display *display) :
-  Page(ObcInstructedInfoPage::ID, display) {
+
+
+ObcInstructedInfoPage::~ObcInstructedInfoPage() {
+  Serial.println("ObcInstructedInfoPage destroyed");
+  ObcService::getInstance().commandObservable.unsubscribe(pageId);
+}
+
+void ObcInstructedInfoPage::init(uint64_t id, const Display *d) {
+  Page::init(id, d);
   Serial.println("ObcInstructedInfoPage created");
-  ObcService::getInstance().commandObservable.subscribe(ObcInstructedInfoPage::ID, std::make_unique<std::function<void(ObcCommandData*)>>( [this](ObcCommandData *data) { obcCommandDataChanged(data); }));
+
+  ObcService::getInstance().commandObservable.subscribe(pageId, std::make_unique<std::function<void(ObcCommandData*)>>( [this](ObcCommandData *data) { obcCommandDataChanged(data); }));
   obcCommandData = ObcService::getInstance().commandObservable.getData();
 
   display->requestRender(0);
 }
 
-ObcInstructedInfoPage::~ObcInstructedInfoPage() {
-  Serial.println("ObcInstructedInfoPage destroyed");
-  ObcService::getInstance().commandObservable.unsubscribe(ObcInstructedInfoPage::ID);
-}
+
 
 void ObcInstructedInfoPage::obcCommandDataChanged(ObcCommandData *data) {
   obcCommandData = data;

@@ -9,17 +9,28 @@
 
 class Page {
 public:
-    Page(uint8_t id, Display *display): pageId(id), display(display) {};
+    Page() {};
+    virtual void init(uint64_t id, const Display *display) {
+        this->display = display;
+        this->pageId = id;
+        this->initialized = true;
+        
+        display->prepare();
+        display->lcd->cls();
+    }
     virtual void render(u_int64_t m) {
         lastRendered = m;
     };
     virtual void loop() {};
     
-    uint8_t pageId;
     virtual ~Page() {}
     u_int64_t lastRendered = 0;
-protected:
-    Display *display;
+    const Display *display = nullptr;
+    uint8_t pageId = 0;
+    bool initialized = false;
+
+private:
+
 
 };
 

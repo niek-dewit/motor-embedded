@@ -5,18 +5,20 @@
 #include <vector>
 #include <string>
 
-DcdcInfoPage::DcdcInfoPage(Display *display) :
-  Page(DcdcInfoPage::ID, display) {
-  Serial.println("DcdcInfoPage created");
-  DcdcService::getInstance().componentStatusObservable.subscribe(DcdcInfoPage::ID, std::make_unique<std::function<void(DcdcComponentStatusData*)>>( [this](DcdcComponentStatusData *data) { dcdcComponentStatusDataChanged(data); }));
-  dcdcComponentStatusData = DcdcService::getInstance().componentStatusObservable.getData();
-
-  display->requestRender(0);
-}
 
 DcdcInfoPage::~DcdcInfoPage() {
   Serial.println("DcdcInfoPage destroyed");
-  DcdcService::getInstance().componentStatusObservable.unsubscribe(DcdcInfoPage::ID);
+  DcdcService::getInstance().componentStatusObservable.unsubscribe(pageId);
+}
+
+void DcdcInfoPage::init(uint64_t id, const Display *d) {
+  Page::init(id, d);
+  Serial.println("DcdcInfoPage created");
+
+  DcdcService::getInstance().componentStatusObservable.subscribe(pageId, std::make_unique<std::function<void(DcdcComponentStatusData*)>>( [this](DcdcComponentStatusData *data) { dcdcComponentStatusDataChanged(data); }));
+  dcdcComponentStatusData = DcdcService::getInstance().componentStatusObservable.getData();
+
+  display->requestRender(0);
 }
 
 void DcdcInfoPage::dcdcComponentStatusDataChanged(DcdcComponentStatusData *data) {

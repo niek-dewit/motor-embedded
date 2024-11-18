@@ -14,12 +14,12 @@
 
 class ChargingPortInfoPage: public Page {
 public:
-    ChargingPortInfoPage(Display *display);
+    ChargingPortInfoPage() {};
     ~ChargingPortInfoPage();
     void render(u_int64_t millis) override;
     void loop() override {};
+    void init(uint64_t id, const Display *display) override;
 
-    static constexpr uint8_t ID = 7;
 
 private:
     ObcStatusData *obcStatusData;
@@ -39,7 +39,7 @@ private:
         s2SwitchClosed,
     };
 
-    static constexpr char* const STATUS_MESSAGES[] = {
+    static constexpr const char* const STATUS_MESSAGES[] = {
         "Socket overheat",
         "Lock Pending",
         "Lock locked",

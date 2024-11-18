@@ -3,18 +3,20 @@
 #include <Arduino.h> 
 #include <memory>
 
-BmsTemperaturesInfoPage::BmsTemperaturesInfoPage(Display *display) :
-  Page(BmsTemperaturesInfoPage::ID, display) {
+BmsTemperaturesInfoPage::~BmsTemperaturesInfoPage() {
+  Serial.println("BmsTemperaturesInfoPage destroyed");
+  BmsService::getInstance().bmsTempsObservable.unsubscribe(pageId);
+}
+
+
+void BmsTemperaturesInfoPage::init(uint64_t id, const Display *d) {
+  Page::init(id, d);
   Serial.println("BmsTemperaturesInfoPage created");
-  BmsService::getInstance().bmsTempsObservable.subscribe(BmsTemperaturesInfoPage::ID, std::make_unique<std::function<void(BmsTempsData*)>>( [this](BmsTempsData *data) { bmsDataChanged(data); }));
+
+  BmsService::getInstance().bmsTempsObservable.subscribe(pageId, std::make_unique<std::function<void(BmsTempsData*)>>( [this](BmsTempsData *data) { bmsDataChanged(data); }));
   bmsTempsData = BmsService::getInstance().bmsTempsObservable.getData();
 
   display->requestRender(0);
-}
-
-BmsTemperaturesInfoPage::~BmsTemperaturesInfoPage() {
-  Serial.println("BmsTemperaturesInfoPage destroyed");
-  BmsService::getInstance().bmsTempsObservable.unsubscribe(BmsTemperaturesInfoPage::ID);
 }
 
 void BmsTemperaturesInfoPage::bmsDataChanged(BmsTempsData *data) {

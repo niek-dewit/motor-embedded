@@ -14,12 +14,11 @@
 
 class ObcStateInfoPage: public Page {
 public:
-    ObcStateInfoPage(Display *display);
+    ObcStateInfoPage() {};
     ~ObcStateInfoPage();
     void render(u_int64_t millis) override;
     void loop() override {};
-
-    static constexpr uint8_t ID = 6;
+    void init(uint64_t id, const Display *display) override;
 
 private:
     ObcStatusData *obcStatusData;
@@ -50,7 +49,7 @@ private:
         coolingPumpOn,
     };
 
-    static constexpr char* const STATUS_MESSAGES[] = {
+    static constexpr const char* const STATUS_MESSAGES[] = {
         "Hw. Flt.",
         "Temp. Flt.",
         "OK Vin",

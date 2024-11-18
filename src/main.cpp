@@ -4,42 +4,82 @@
 #include "./services/bms/bmsService.h"
 #include "./services/dcdc/dcdcService.h"
 #include "./services/controller/controllerService.h"
-#include "./services/interface/interfaceService.h"
+#include "./services/displays/displaysService.h"
+#include "./services/canBus/canBusService.h"
+#include "./services/buttons/buttonsService.h"
+#include "./services/heartbeat/heartbeatService.h"
+#include "./pages/obcState/obcStateInfo.h"
+#include "./pages/chargingPort/chargingPortInfo.h"
+#include "./pages/bmsVoltagesInfo/bmsVoltagesInfo.h"
+#include "pages/empty/empty.h"
 #include <memory>
+
+
 ObcService& obcService = ObcService::getInstance();
 DcdcService& dcdcService = DcdcService::getInstance();
 BmsService& bmsService = BmsService::getInstance();
 ControllerService& controllerService = ControllerService::getInstance();
-
-InterfaceService& interfaceService = InterfaceService::getInstance();
+DisplaysService& displaysService = DisplaysService::getInstance();
+ButtonsService& buttonsService = ButtonsService::getInstance();
 CanBusService& canBusService = CanBusService::getInstance();
+HeartbeatService& heartbeatService = HeartbeatService::getInstance();
 
-void setup() {
-  pinMode(LED_BUILTIN, OUTPUT);
-  Serial.begin(115200);
-  interfaceService.logging = false;
+bool state = false;
+long lastSwitch = 0;
+
+void displayState1() {
+  displaysService.registerPage(
+    DisplaysService::DisplayAddress::DISPLAY2,
+    std::make_unique<BmsVoltagesInfoPage>(1)
+  );
+
+  displaysService.registerPage(
+    DisplaysService::DisplayAddress::DISPLAY1,
+    std::make_unique<ChargingPortInfoPage>()
+  );
+}
+
+void displayState2() {
+  displaysService.registerPage(
+    DisplaysService::DisplayAddress::DISPLAY2,
+    std::make_unique<EmptyPage>()
+  );
+
+  displaysService.registerPage(
+    DisplaysService::DisplayAddress::DISPLAY1,
+    std::make_unique<ObcStateInfoPage>()
+  );
 }
 
 
-int heartBeatInterval = 1000;
-int prevHeartBeat = 0;
-bool blinking = false;
-void loop() {
-  interfaceService.loop();
-  canBusService.loop();
 
-  if (millis() - prevHeartBeat > heartBeatInterval) {
-    //Serial.print("Heartbeat: "); Serial.println(millis());
-    prevHeartBeat = millis();
-    blinking = !blinking;
-    if (blinking) {
-      digitalWrite(LED_BUILTIN, HIGH);
-    } else {
-      digitalWrite(LED_BUILTIN, LOW);
-    }
+void setup() {
+  Serial.begin(115200);
+  displaysService.logging = false;
+
+  displaysService.setReadyCallback(std::make_unique<std::function<void()>>( []() {
     
-  }
+    displayState2();
+    buttonsService.getButton(ButtonsService::ButtonPin::BUTTON1).setCallback(std::make_unique<std::function<void(bool)>>( [](bool pressed) {
+      if(lastSwitch + 3000 < millis()) {
+        if(!state) {
+          displayState1();
+        } else {
+          displayState2();
+        }
+        state = !state;
+        lastSwitch = millis();
+      }
 
 
+    }));
+  }));
 
+}
+
+void loop() {
+  displaysService.loop();
+  canBusService.loop();
+  buttonsService.loop();
+  heartbeatService.loop();
 }

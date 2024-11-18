@@ -13,11 +13,11 @@
 class EmptyPage: public Page {  
   
 public:
-    EmptyPage(Display *display);  
+    EmptyPage() {};  
     ~EmptyPage();
     void render(u_int64_t millis) override;
     void loop() override {};
-    static constexpr uint8_t ID = 0;
+    void init(uint64_t id, const Display *display) override;
 };
 
 

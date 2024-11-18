@@ -5,19 +5,23 @@
 #include <vector>
 #include <string>
 
-ObcStateInfoPage::ObcStateInfoPage(Display *display) :
-  Page(ObcStateInfoPage::ID, display) {
+
+ObcStateInfoPage::~ObcStateInfoPage() {
+  Serial.println("ObcStateInfoPage destroyed");
+  ObcService::getInstance().statusObservable.unsubscribe(pageId);
+}
+
+void ObcStateInfoPage::init(uint64_t id, const Display *d) {
+  Page::init(id, d);
   Serial.println("ObcStateInfoPage created");
-  ObcService::getInstance().statusObservable.subscribe(ObcStateInfoPage::ID, std::make_unique<std::function<void(ObcStatusData*)>>( [this](ObcStatusData *data) { obcStatusDataChanged(data); }));
+
+  ObcService::getInstance().statusObservable.subscribe(pageId, std::make_unique<std::function<void(ObcStatusData*)>>( [this](ObcStatusData *data) { obcStatusDataChanged(data); }));
   obcStatusData = ObcService::getInstance().statusObservable.getData();
 
   display->requestRender(0);
 }
 
-ObcStateInfoPage::~ObcStateInfoPage() {
-  Serial.println("ObcStateInfoPage destroyed");
-  ObcService::getInstance().statusObservable.unsubscribe(ObcStateInfoPage::ID);
-}
+
 
 void ObcStateInfoPage::obcStatusDataChanged(ObcStatusData *data) {
   obcStatusData = data;

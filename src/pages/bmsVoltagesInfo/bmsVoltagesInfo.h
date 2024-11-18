@@ -14,12 +14,12 @@
 
 class BmsVoltagesInfoPage: public Page {
 public:
-    BmsVoltagesInfoPage(Display *display, uint8_t pageIndex);
+    BmsVoltagesInfoPage(uint8_t pageIndex);
     ~BmsVoltagesInfoPage();
     void render(u_int64_t millis) override;
     void loop() override;
+    void init(uint64_t id, const Display *display) override;
 
-    static constexpr uint8_t ID = 1;
     static constexpr uint8_t PAGE_MAX = 3;
     uint8_t pageIndex = 0;
     uint32_t prevPageSwitch = 0;

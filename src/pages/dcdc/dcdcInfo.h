@@ -14,12 +14,12 @@
 
 class DcdcInfoPage: public Page {
 public:
-    DcdcInfoPage(Display *display);
+    DcdcInfoPage() {};
     ~DcdcInfoPage();
     void render(u_int64_t millis) override;
     void loop() override {};
+    void init(uint64_t id, const Display *display) override;
 
-    static constexpr uint8_t ID = 4;
 
 private:
     DcdcComponentStatusData *dcdcComponentStatusData;
@@ -46,7 +46,7 @@ private:
         waterFanOn,
         hvilFault
     };
-    static constexpr char* const STATUS_MESSAGES[] = {
+    static constexpr const char* const STATUS_MESSAGES[] = {
         "Over T.",
         "T.Protect",
         "Over Vin",

@@ -33,7 +33,6 @@ void ObcService::handleCommandMessage(const CAN_message_t &msg) {
     obcCommandData->commandChargingMode = chargingMode;
     obcCommandData->commandHeatingMode = heatingMode;
     commandObservable.notifyListeners();
-    printData();
   }
 }
 

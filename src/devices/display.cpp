@@ -55,7 +55,7 @@ uint8_t celsius[8] = {
     0b00000,
     0b00000};
 
-Display::Display(uint8_t i2caddr, uint8_t resetPin, std::unique_ptr<std::function<void(u_int64_t)>> requestRenderCallback): requestRenderCallback(std::move(requestRenderCallback)), i2caddr(i2caddr), resetPin(resetPin) {
+Display::Display(uint8_t i2caddr, uint8_t resetPin, std::unique_ptr<std::function<void(u_int64_t)>> cb): i2caddr(i2caddr), resetPin(resetPin), requestRenderCallback(std::move(cb)) {
     init();
 }
 
@@ -74,11 +74,11 @@ void Display::init() {
     this->requestRender(0);
 }
 
-void Display::prepare() {
+void Display::prepare() const {
     Wire.begin(); // Not sure why this is necessary exacly, but it works, and measured execution of this line takes less than 1 microsecond. Compared to 1000 - 20000 microseconds total.
 }
 
-void Display::requestRender(u_int64_t scheduledAfterMillis) {
+void Display::requestRender(u_int64_t scheduledAfterMillis) const {
     requestRenderCallback->operator()(scheduledAfterMillis);
 }
 

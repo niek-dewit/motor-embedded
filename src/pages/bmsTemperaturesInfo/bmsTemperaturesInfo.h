@@ -13,12 +13,11 @@
 
 class BmsTemperaturesInfoPage: public Page {
 public:
-    BmsTemperaturesInfoPage(Display *display);
+    BmsTemperaturesInfoPage() {};
     ~BmsTemperaturesInfoPage();
     void render(u_int64_t millis) override;
     void loop() override {};
-
-    static constexpr uint8_t ID = 2;
+    void init(uint64_t id, const Display *display) override;
 
 private:
     BmsTempsData *bmsTempsData;

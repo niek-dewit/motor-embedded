@@ -14,12 +14,11 @@
 
 class ObcInstructedInfoPage: public Page {
 public:
-    ObcInstructedInfoPage(Display *display);
+    ObcInstructedInfoPage() {};
     ~ObcInstructedInfoPage();
     void render(u_int64_t millis) override;
     void loop() override {};
-
-    static constexpr uint8_t ID = 5;
+    void init(uint64_t id, const Display *display) override;
 
 private:
     ObcCommandData *obcCommandData;
@@ -36,7 +35,7 @@ private:
         commandChargingMode,
         commandHeatingMode,
     };
-    static constexpr char* const STATUS_MESSAGES[] = {
+    static constexpr const char* const STATUS_MESSAGES[] = {
         "Start Charging",
         "Close Charger",
         "Sleep Charger",

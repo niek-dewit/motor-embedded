@@ -3,13 +3,15 @@
 #include <Arduino.h> 
 
 
-EmptyPage::EmptyPage(Display *display) : Page(EmptyPage::ID, display) {
-  Serial.println("EmptyPage created");
-  display->requestRender(1000);
-}
 
 EmptyPage::~EmptyPage() {
   Serial.println("EmptyPage destroyed");
+}
+void EmptyPage::init(uint64_t id, const Display *d) {
+  Page::init(id, d);
+  Serial.println("EmptyPage created");
+
+  display->requestRender(1000);
 }
 
 void EmptyPage::render(uint64_t m) {

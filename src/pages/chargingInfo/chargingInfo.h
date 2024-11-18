@@ -14,12 +14,12 @@
 
 class ChargingInfoPage: public Page {
 public:
-    ChargingInfoPage(Display *display);
+    ChargingInfoPage() {};
     ~ChargingInfoPage();
     void render(u_int64_t millis) override;
     void loop() override {};
+    void init(uint64_t id, const Display *display) override;
 
-    static constexpr uint8_t ID = 1;
 
 private:
     //ObcData *obcData;

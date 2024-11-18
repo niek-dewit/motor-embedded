@@ -3,19 +3,22 @@
 #include <Arduino.h> 
 #include <memory>
 
-ChargingInfoPage::ChargingInfoPage(Display *display) :
-  Page(ChargingInfoPage::ID, display) {
+
+ChargingInfoPage::~ChargingInfoPage() {
+  Serial.println("ChargingInfoPage destroyed");
+  //ObcService::getInstance().unsubscribe(pageId);
+}
+
+void ChargingInfoPage::init(uint64_t id, const Display *d) {
+  Page::init(id, d);
   Serial.println("ChargingInfoPage created");
-  //ObcService::getInstance().subscribe(ChargingInfoPage::ID, std::make_unique<std::function<void(ObcData*)>>( [this](ObcData *data) { obcDataChanged(data); }));
+
+  //ObcService::getInstance().subscribe(pageId, std::make_unique<std::function<void(ObcData*)>>( [this](ObcData *data) { obcDataChanged(data); }));
   //obcData = ObcService::getInstance().getData();
 
   display->requestRender(0);
 }
 
-ChargingInfoPage::~ChargingInfoPage() {
-  Serial.println("ChargingInfoPage destroyed");
-  //ObcService::getInstance().unsubscribe(ChargingInfoPage::ID);
-}
 
 //void ChargingInfoPage::obcDataChanged(ObcData *data) {
 //  obcData = data;

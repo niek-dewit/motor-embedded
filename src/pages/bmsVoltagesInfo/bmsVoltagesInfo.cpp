@@ -3,19 +3,24 @@
 #include <Arduino.h> 
 #include <memory>
 
-BmsVoltagesInfoPage::BmsVoltagesInfoPage(Display *display, uint8_t pageIndex) :
-  Page(BmsVoltagesInfoPage::ID, display),
+BmsVoltagesInfoPage::BmsVoltagesInfoPage(uint8_t pageIndex) :
   pageIndex(pageIndex) {
-  Serial.println("BmsVoltagesInfoPage created");
-  BmsService::getInstance().bmsVCellObservable.subscribe(BmsVoltagesInfoPage::ID, std::make_unique<std::function<void(BmsVCellData*)>>( [this](BmsVCellData *data) { bmsDataChanged(data); }));
-  bmsVCellData = BmsService::getInstance().bmsVCellObservable.getData();
 
-  display->requestRender(0);
 }
 
 BmsVoltagesInfoPage::~BmsVoltagesInfoPage() {
   Serial.println("BmsVoltagesInfoPage destroyed");
-  BmsService::getInstance().bmsTempsObservable.unsubscribe(BmsVoltagesInfoPage::ID);
+  BmsService::getInstance().bmsTempsObservable.unsubscribe(pageId);
+}
+
+void BmsVoltagesInfoPage::init(uint64_t id, const Display *d) {
+  Page::init(id, d);
+  Serial.println("BmsVoltagesInfoPage created");
+
+  BmsService::getInstance().bmsVCellObservable.subscribe(pageId, std::make_unique<std::function<void(BmsVCellData*)>>( [this](BmsVCellData *data) { bmsDataChanged(data); }));
+  bmsVCellData = BmsService::getInstance().bmsVCellObservable.getData();
+
+  display->requestRender(0);
 }
 
 void BmsVoltagesInfoPage::bmsDataChanged(BmsVCellData *data) {

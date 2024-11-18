@@ -5,19 +5,22 @@
 #include <vector>
 #include <string>
 
-ChargingPortInfoPage::ChargingPortInfoPage(Display *display) :
-  Page(ChargingPortInfoPage::ID, display) {
+ChargingPortInfoPage::~ChargingPortInfoPage() {
+  Serial.println("ChargingPortInfoPage destroyed");
+  ObcService::getInstance().statusObservable.unsubscribe(pageId);
+}
+void ChargingPortInfoPage::init(uint64_t id, const Display *d) {
+  Page::init(id, d);
   Serial.println("ChargingPortInfoPage created");
-  ObcService::getInstance().statusObservable.subscribe(ChargingPortInfoPage::ID, std::make_unique<std::function<void(ObcStatusData*)>>( [this](ObcStatusData *data) { obcStatusDataChanged(data); }));
+
+  ObcService::getInstance().statusObservable.subscribe(pageId, std::make_unique<std::function<void(ObcStatusData*)>>( [this](ObcStatusData *data) { obcStatusDataChanged(data); }));
   obcStatusData = ObcService::getInstance().statusObservable.getData();
 
   display->requestRender(0);
 }
 
-ChargingPortInfoPage::~ChargingPortInfoPage() {
-  Serial.println("ChargingPortInfoPage destroyed");
-  ObcService::getInstance().statusObservable.unsubscribe(ChargingPortInfoPage::ID);
-}
+
+
 
 void ChargingPortInfoPage::obcStatusDataChanged(ObcStatusData *data) {
   obcStatusData = data;
@@ -117,7 +120,16 @@ void ChargingPortInfoPage::render(uint64_t m) {
   display->lcd->print("CC - ");
   display->lcd->locate(1, 5);
 
-  display->lcd->print(obcStatusData->ccSignalNotConnected ? "NO" : (obcStatusData->ccSignalHalfConnected ? "Half" : (obcStatusData->ccSignalNormalConnected ? "Normal" : (obcStatusData->ccSignalResistanceDetectionError ? "Res. Flt." : "UNKNOWN"))));
+  display->lcd->print(
+    obcStatusData->ccSignalNotConnected ? "NO" :
+    (obcStatusData->ccSignalHalfConnected ? "Half" :
+      (obcStatusData->ccSignalNormalConnected ? "Normal" :
+        (obcStatusData->ccSignalResistanceDetectionError ? "Res. Flt." :
+          "UNKNOWN"
+        )
+      )
+    )
+  );
 
   display->lcd->locate(2, 0);
   display->lcd->print("CP - ");
